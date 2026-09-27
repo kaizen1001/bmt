@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KTA.Teams Badminton Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkBg: '#0b0c10',
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        glassBorder: 'rgba(255, 255, 255, 0.1)',
+                        accent: '#4facfe',
+                        accentHover: '#00f2fe'
+                    },
+                    animation: {
+                        'blob': 'blob 15s infinite alternate',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '50%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '100%': { transform: 'translate(-40px, 20px) scale(0.9)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: theme('colors.darkBg');
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Animated Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.15), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(138, 43, 226, 0.15), transparent 25%);
+        }
+        .mesh-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background-color: #0f111a;
+            background-image: 
+                radial-gradient(at 40% 20%, hsla(28,100%,74%,0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.03) 0px, transparent 50%);
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--glass, rgba(255, 255, 255, 0.03));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glassBorder, rgba(255, 255, 255, 0.08));
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: theme('colors.accent');
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        /* Smooth UI Transitions */
+        .smooth-transition { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        button:active { transform: scale(0.95); }
+
+        /* Hide Number Input Arrows */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="mesh-gradient"></div>
+    <div class="ambient-bg animate-blob"></div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl relative z-10">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-1">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Hữu Phước</span>
+                <span>Host</span>
+            </h1>
+            <p class="text-gray-400 text-sm tracking-widest uppercase">Chào mừng bạn!</p>
+        </header>
+
+        <div class="glass-panel rounded-2xl p-5 mb-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-200"><i class="fa-solid fa-user-plus mr-2 text-cyan-400"></i> Đăng ký người chơi</h2>
+            <form id="addPlayerForm" class="flex flex-col md:flex-row gap-3">
+                <input type="text" id="playerName" placeholder="Nhập tên vãng lai..." class="glass-input rounded-xl px-4 py-2.5 flex-1 w-full" required autocomplete="off">
+                <select id="playerLevel" class="glass-input rounded-xl px-4 py-2.5 w-full md:w-48 appearance-none cursor-pointer">
+                    <option value="1" class="bg-gray-900">Mới chơi</option>
+                    <option value="2" class="bg-gray-900">TB Yếu</option>
+                    <option value="3" class="bg-gray-900" selected>Trung bình</option>
+                    <option value="4" class="bg-gray-900">Khá</option>
+                </select>
+                <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium py-2.5 px-6 rounded-xl shadow-lg smooth-transition w-full md:w-auto">
+                    Thêm <i class="fa-solid fa-plus ml-1"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            
+            <div class="lg:col-span-1 flex flex-col">
+                <div class="glass-panel rounded-2xl p-5 flex-1 flex flex-col max-h-[600px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-200"><i class="fa-solid fa-list-ol mr-2 text-yellow-400"></i> Hàng chờ</h2>
+                        <span class="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-md">Ưu tiên ít set</span>
+                    </div>
+                    
+                    <div id="waitingList" class="flex flex-col gap-2 overflow-y-auto pr-2 pb-2">
+                        <!-- Waiting players injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="courtsContainer">
+                    <!-- Courts injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 mt-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-lg font-semibold text-gray-200"><i class="fa-solid fa-calculator mr-2 text-green-400"></i> Tính tiền (Campuchia)</h2>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <label class="text-sm text-gray-400 whitespace-nowrap">Tổng chi phí:</label>
+                    <input type="number" id="totalCost" placeholder="Ví dụ: 300000" class="glass-input rounded-lg px-3 py-2 w-full md:w-48 text-right font-mono" oninput="renderBilling()">
+                    <span class="text-gray-400">VNĐ</span>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-white/10 text-gray-400 text-sm">
+                            <th class="py-3 px-4 font-medium">Người chơi</th>
+                            <th class="py-3 px-4 font-medium text-center">Số Set</th>
+                            <th class="py-3 px-4 font-medium text-right">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billingTable" class="text-sm">
+                        <!-- Billing rows injected here -->
+                    </tbody>
+                    <tfoot id="billingSummary" class="border-t border-white/10 text-sm font-medium">
+                        <!-- Summary injected here -->
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <footer class="mt-10 mb-4 glass-panel rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
+            <div class="text-center md:text-left">
+                <p class="text-gray-300 font-medium">&copy; 2026 KTA.Teams Badminton Hub.</p>
+                <p class="text-xs mt-1.5 opacity-70">Powered by <span class="text-cyan-400 font-bold tracking-wider">KTA</span></p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-blue-600/20 hover:text-blue-400 border border-white/10 transition-all duration-300 shadow-lg" title="Facebook KTA.Teams">
+                    <i class="fa-brands fa-facebook-f text-lg"></i>
+                </a>
+                <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 border border-white/10 transition-all duration-300 shadow-lg" title="Liên hệ Zalo">
+                    <i class="fa-solid fa-comment-dots text-lg"></i>
+                </a>
+                <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-red-500/20 hover:text-red-400 border border-white/10 transition-all duration-300 shadow-lg" title="Báo cáo lỗi / Hỗ trợ">
+                    <i class="fa-solid fa-headset text-lg"></i>
+                </a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // Data Models
+        let players = []; // { id, name, level, sets, court: null|1|2|3|4, addedAt }
+        let totalCostInput = document.getElementById('totalCost');
+
+        // Configs
+        const COURTS_COUNT = 4;
+        const MAX_PER_COURT = 4;
+        
+        const LEVELS = {
+            "1": { name: "Mới chơi", class: "text-green-400 bg-green-400/10 border border-green-400/20" },
+            "2": { name: "TB Yếu", class: "text-yellow-400 bg-yellow-400/10 border border-yellow-400/20" },
+            "3": { name: "Trung bình", class: "text-blue-400 bg-blue-400/10 border border-blue-400/20" },
+            "4": { name: "Khá", class: "text-purple-400 bg-purple-400/10 border border-purple-400/20" }
+        };
+
+        // Form Event Listener
+        document.getElementById('addPlayerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('playerName');
+            const levelEl = document.getElementById('playerLevel');
+            
+            if(nameEl.value.trim() === "") return;
+
+            players.push({
+                id: 'p_' + Date.now() + Math.floor(Math.random()*100),
+                name: nameEl.value.trim(),
+                level: levelEl.value,
+                sets: 0,
+                court: null, // null means waiting list
+                addedAt: Date.now()
+            });
+
+            nameEl.value = '';
+            nameEl.focus();
+            updateUI();
+        });
+
+        function moveToCourt(playerId, courtId) {
+            const courtPlayers = players.filter(p => p.court === courtId);
+            if(courtPlayers.length >= MAX_PER_COURT) {
+                // Ignore if court is full (UI should disable button, but safety check here)
+                return; 
+            }
+            const p = players.find(p => p.id === playerId);
+            if(p) p.court = courtId;
+            updateUI();
+        }
+
+        function removeFromCourt(playerId) {
+            const p = players.find(p => p.id === playerId);
+            if(p) p.court = null; // Move back to waitlist without adding sets
+            updateUI();
+        }
+
+        function removePlayerEntirely(playerId) {
+            players = players.filter(p => p.id !== playerId);
+            updateUI();
+        }
+
+        function finishSet(courtId) {
+            players.forEach(p => {
+                if(p.court === courtId) {
+                    p.sets += 1;
+                    p.court = null; // Return to waiting list
+                    p.addedAt = Date.now(); // Reset priority timestamp
+                }
+            });
+            updateUI();
+        }
+
+        function updateUI() {
+            renderWaitingList();
+            renderCourts();
+            renderBilling();
+        }
+
+        function renderWaitingList() {
+            const container = document.getElementById('waitingList');
+            container.innerHTML = '';
+
+            // Filter only waiting players and sort by sets (asc) then time added (asc)
+            let waitingPlayers = players.filter(p => p.court === null);
+            waitingPlayers.sort((a, b) => {
+                if (a.sets !== b.sets) return a.sets - b.sets;
+                return a.addedAt - b.addedAt;
+            });
+
+            if(waitingPlayers.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 py-6 text-sm"><i class="fa-solid fa-mug-hot mb-2 text-xl block opacity-50"></i>Trống</div>`;
+                return;
+            }
+
+            waitingPlayers.forEach(p => {
+                const lvl = LEVELS[p.level];
+                
+                // Build court assignment buttons
+                let courtButtonsHTML = '';
+                for(let i = 1; i <= COURTS_COUNT; i++) {
+                    const courtCount = players.filter(cp => cp.court === i).length;
+                    const isFull = courtCount >= MAX_PER_COURT;
+                    courtButtonsHTML += `
+                        <button onclick="moveToCourt('${p.id}', ${i})" 
+                                ${isFull ? 'disabled' : ''}
+                                class="w-6 h-6 flex items-center justify-center rounded text-xs font-semibold smooth-transition 
+                                ${isFull ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-white/10 hover:bg-cyan-500 text-gray-300 hover:text-white'}">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-black/30 border border-white/5 rounded-xl p-3 flex flex-col gap-2 relative group hover:bg-black/40 smooth-transition">
+                        <!-- Delete btn (shows on hover) -->
+                        <button onclick="removePlayerEntirely('${p.id}')" class="absolute top-2 right-2 text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 smooth-transition">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+
+                        <div class="flex justify-between items-start pr-6">
+                            <div>
+                                <div class="font-medium text-gray-100">${escapeHTML(p.name)}</div>
+                                <div class="text-[10px] rounded px-1.5 py-0.5 inline-block mt-1 ${lvl.class}">${lvl.name}</div>
+                            </div>
+                            <div class="flex flex-col items-center justify-center bg-white/5 rounded-lg w-10 h-10 border border-white/5">
+                                <span class="text-[10px] text-gray-500 uppercase leading-none">Sets</span>
+                                <span class="font-bold text-gray-200 leading-tight">${p.sets}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-1 border-t border-white/5 pt-2">
+                            <span class="text-[10px] text-gray-500 mr-1">Vào sân:</span>
+                            ${courtButtonsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderCourts() {
+            const container = document.getElementById('courtsContainer');
+            container.innerHTML = '';
+
+            for(let i = 1; i <= COURTS_COUNT; i++) {
+                let courtPlayers = players.filter(p => p.court === i);
+                let isEmpty = courtPlayers.length === 0;
+                let isFull = courtPlayers.length >= MAX_PER_COURT;
+
+                let playersHTML = courtPlayers.map(p => `
+                    <div class="flex justify-between items-center bg-black/40 rounded-lg p-2 border border-white/5 mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${LEVELS[p.level].class.split(' ')[0].replace('text', 'bg')}"></span>
+                            <span class="text-sm font-medium text-gray-200">${escapeHTML(p.name)}</span>
+                        </div>
+                        <button onclick="removeFromCourt('${p.id}')" class="text-gray-500 hover:text-red-400 w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/5 smooth-transition" title="Hủy vào sân">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                    </div>
+                `).join('');
+
+                // Fill empty slots visually
+                const emptySlots = MAX_PER_COURT - courtPlayers.length;
+                for(let j = 0; j < emptySlots; j++) {
+                    playersHTML += `<div class="bg-black/10 rounded-lg p-2 border border-dashed border-white/10 mb-1.5 h-[38px]"></div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col ${isFull ? 'border-cyan-500/30 shadow-[0_0_15px_rgba(79,172,254,0.1)]' : ''}">
+                        <div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2">
+                            <h3 class="font-semibold text-gray-200"><i class="fa-solid fa-map-pin mr-2 ${isEmpty ? 'text-gray-600' : 'text-cyan-400'}"></i>Sân ${i}</h3>
+                            <span class="text-xs px-2 py-1 rounded-full ${isFull ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-800 text-gray-400'}">${courtPlayers.length}/${MAX_PER_COURT}</span>
+                        </div>
+                        
+                        <div class="flex-1 mb-3">
+                            ${playersHTML}
+                        </div>
+                        
+                        <button onclick="finishSet(${i})" 
+                                ${isEmpty ? 'disabled' : ''}
+                                class="w-full py-2.5 rounded-xl font-medium text-sm smooth-transition
+                                ${isEmpty ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-white/10 hover:bg-white/20 text-white border border-white/10 active:scale-95'}">
+                            Kết thúc Set & Cộng điểm
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderBilling() {
+            const tableBody = document.getElementById('billingTable');
+            const tableSummary = document.getElementById('billingSummary');
+            
+            const costVal = parseFloat(totalCostInput.value) || 0;
+            const formatCurrency = (val) => new Intl.NumberFormat('vi-VN').format(Math.round(val)) + ' đ';
+
+            // Calculate total sets played by everyone
+            const totalSetsPlayed = players.reduce((sum, p) => sum + p.sets, 0);
+            const costPerSet = totalSetsPlayed > 0 ? (costVal / totalSetsPlayed) : 0;
+
+            tableBody.innerHTML = '';
+            
+            if(players.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">Chưa có người chơi</td></tr>`;
+                tableSummary.innerHTML = '';
+                return;
+            }
+
+            players.sort((a,b) => b.sets - a.sets).forEach(p => {
+                const amount = p.sets * costPerSet;
+                tableBody.innerHTML += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-2.5 px-4 text-gray-300 font-medium">${escapeHTML(p.name)}</td>
+                        <td class="py-2.5 px-4 text-center">
+                            <span class="bg-white/10 px-2 py-0.5 rounded-md text-gray-300">${p.sets}</span>
+                        </td>
+                        <td class="py-2.5 px-4 text-right text-cyan-400 font-mono">${formatCurrency(amount)}</td>
+                    </tr>
+                `;
+            });
+
+            tableSummary.innerHTML = `
+                <tr>
+                    <td class="py-3 px-4 text-gray-400">Tổng cộng:</td>
+                    <td class="py-3 px-4 text-center text-white font-bold">${totalSetsPlayed}</td>
+                    <td class="py-3 px-4 text-right text-white font-bold font-mono">${formatCurrency(costVal)}</td>
+                </tr>
+            `;
+        }
+
+        // Utility: Prevent XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
+        }
+
+        // Init
+        updateUI();
+
+    </script>
+</body>
+</html>
